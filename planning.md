@@ -18,90 +18,77 @@ Student experiences with specific professors and courses at UC Santa Cruz — wh
 <!-- List your specific sources: URLs, subreddit names, forum threads, or file descriptions.
      Aim for at least 10 sources that together cover different subtopics or perspectives within your domain. -->
 
-| # | Source | Description | URL or location |
-|---|--------|-------------|-----------------|
-| 1 | RMP — UCSC school hub | Aggregated ratings for all UCSC professors | https://www.ratemyprofessors.com/school/1078 |
-| 2 | RMP — Ethan Miller (CS) | Reviews for a high-profile CS prof with polarized opinions | https://www.ratemyprofessors.com/professor/136264 |
-| 3 | RMP — A.M. Darke (Art/Games) | Reviews covering an Art & Games dept professor | https://www.ratemyprofessors.com/professor/2463375 |
-| 4 | RMP — Ryan Coonerty (Politics) | Reviews for a Politics/Community Studies prof | https://www.ratemyprofessors.com/professor/439427 |
-| 5 | RMP — Jesse Kass (Math) | Reviews for a well-regarded Math dept professor | https://www.ratemyprofessors.com/professor/2895784 |
-| 6 | RMP — Anne Sizemore (Chem) | Reviews for an Organic Chemistry professor | https://www.ratemyprofessors.com/professor/2989548 |
-| 7 | RMP — Scott Anderson | Reviews covering extra credit and grading style | https://www.ratemyprofessors.com/professor/2319462 |
-| 8 | RMP — Edward Migliore (Math, online) | Reviews for an online Math instructor | https://www.ratemyprofessors.com/professor/218123 |
-| 9 | RMP — Steven Owen | Reviews for a UCSC professor (diverse dept coverage) | https://www.ratemyprofessors.com/professor/2346100 |
-| 10 | Slugtistics | Student-built UCSC class search with GPA data and instructor reviews | https://slugtistics.com/about |
-| 11 | UCSC IRAPS grade data | Official grade distributions by course and term | https://iraps.ucsc.edu/campus-data/student-data/grades-by-course-and-term/ |
-| 12 | r/UCSC subreddit | Community threads on professor recommendations and easy GEs | https://www.reddit.com/r/UCSC/ |
+| #   | Source                               | Description                                                          | URL or location                                                            |
+| --- | ------------------------------------ | -------------------------------------------------------------------- | -------------------------------------------------------------------------- |
+| 1   | RMP — UCSC school hub                | Aggregated ratings for all UCSC professors                           | https://www.ratemyprofessors.com/school/1078                               |
+| 2   | RMP — Ethan Miller (CS)              | Reviews for a high-profile CS prof with polarized opinions           | https://www.ratemyprofessors.com/professor/136264                          |
+| 3   | RMP — A.M. Darke (Art/Games)         | Reviews covering an Art & Games dept professor                       | https://www.ratemyprofessors.com/professor/2463375                         |
+| 4   | RMP — Ryan Coonerty (Politics)       | Reviews for a Politics/Community Studies prof                        | https://www.ratemyprofessors.com/professor/439427                          |
+| 5   | RMP — Jesse Kass (Math)              | Reviews for a well-regarded Math dept professor                      | https://www.ratemyprofessors.com/professor/2895784                         |
+| 6   | RMP — Anne Sizemore (Chem)           | Reviews for an Organic Chemistry professor                           | https://www.ratemyprofessors.com/professor/2989548                         |
+| 7   | RMP — Scott Anderson                 | Reviews covering extra credit and grading style                      | https://www.ratemyprofessors.com/professor/2319462                         |
+| 8   | RMP — Edward Migliore (Math, online) | Reviews for an online Math instructor                                | https://www.ratemyprofessors.com/professor/218123                          |
+| 9   | RMP — Steven Owen                    | Reviews for a UCSC professor (diverse dept coverage)                 | https://www.ratemyprofessors.com/professor/2346100                         |
+| 10  | Slugtistics                          | Student-built UCSC class search with GPA data and instructor reviews | https://slugtistics.com/about                                              |
+| 11  | UCSC IRAPS grade data                | Official grade distributions by course and term                      | https://iraps.ucsc.edu/campus-data/student-data/grades-by-course-and-term/ |
+| 12  | r/UCSC subreddit                     | Community threads on professor recommendations and easy GEs          | https://www.reddit.com/r/UCSC/                                             |
 
 ---
 
 ## Chunking Strategy
 
-<!-- How will you split documents into chunks?
-     State your chunk size (in tokens or characters), overlap size, and explain why those
-     numbers fit the structure of your documents.
-     A review-heavy corpus warrants different chunking than a long FAQ. -->
+**Chunk size:** One chunk per individual review (review-level), targeting ~400–600 characters. Fixed-size fallback of 512 tokens for long-form sources (Slugtistics about page, r/UCSC threads).
 
-**Chunk size:**
+**Overlap:** ~50 characters (≈1 sentence) on the fixed-size fallback only. Per-review chunks get no overlap — they are atomic units.
 
-**Overlap:**
-
-**Reasoning:**
+**Reasoning:** RMP and Slugtistics reviews are short (1–3 sentences, ~50–150 words) and self-contained. A review is the natural retrieval unit — fixed-size splitting would either merge two unrelated reviews about different professors or sever one opinion mid-sentence, polluting the embedding. Chunking at review boundaries keeps each opinion attributable to one professor. Preprocessing before chunking: strip HTML/nav boilerplate, drop empty or exact-duplicate reviews. Each chunk stores metadata: professor name, department, source URL, and star rating (where available).
 
 ---
 
 ## Retrieval Approach
 
-<!-- Which embedding model are you using (e.g., all-MiniLM-L6-v2 via sentence-transformers)?
-     How many chunks will you retrieve per query (top-k)?
-     If you were deploying this for real users and cost wasn't a constraint, what tradeoffs
-     would you weigh in choosing a different embedding model — context length, multilingual
-     support, accuracy on domain-specific text, latency? -->
+**Embedding model:** `all-MiniLM-L6-v2` via `sentence-transformers` (384-dimensional embeddings, 256-token max context). Fits short reviews without truncation, runs locally with no API cost, and loads fast enough for interactive queries.
 
-**Embedding model:**
+**Top-k:** 5 — enough to aggregate multiple student opinions per professor without diluting context with off-topic chunks from other professors.
 
-**Top-k:**
-
-**Production tradeoff reflection:**
+**Production tradeoff reflection:** Without cost constraints, I would weigh switching to a higher-accuracy model like `bge-large-en` or OpenAI `text-embedding-3-large`. Key tradeoffs: (1) **Context length** — `all-MiniLM-L6-v2` truncates at 256 tokens, which loses the tail of longer r/UCSC threads; a 512- or 8192-token model avoids that. (2) **Domain specificity** — generic models may underweight UCSC-specific slang or professor nicknames; a fine-tuned model on student review text would retrieve more precisely. (3) **Latency and hosting** — MiniLM runs offline with no per-query cost; API-hosted models add latency and cost but remove the need to manage local GPU/CPU resources. (4) **Multilingual support** — irrelevant here (corpus is English-only), but matters if expanding to international course review sites.
 
 ---
 
 ## Evaluation Plan
 
-<!-- List your 5 test questions with their expected correct answers.
-     Questions should be specific enough that you can judge whether the system's response
-     is right or wrong. "What are good dining halls?" is too vague.
-     "What do students say about wait times at [dining hall name] during lunch?" is testable. -->
-
-| # | Question | Expected answer |
-|---|----------|-----------------|
-| 1 | | |
-| 2 | | |
-| 3 | | |
-| 4 | | |
-| 5 | | |
+| #   | Question                                                                    | Expected answer                                                            |
+| --- | --------------------------------------------------------------------------- | -------------------------------------------------------------------------- |
+| 1   | Does Edward Migliore teach his UCSC math classes in an online format?       | Yes — his RMP reviews explicitly describe online/asynchronous instruction. |
+| 2   | Do students mention extra-credit opportunities in Scott Anderson's reviews? | Yes — reviews reference extra credit as part of his grading.               |
+| 3   | What subject does Anne Sizemore teach at UCSC?                              | Organic Chemistry (Chemistry department).                                  |
+| 4   | Which academic department is Ethan Miller associated with at UCSC?          | Computer Science.                                                          |
+| 5   | What department or program does A.M. Darke teach in at UCSC?                | Art & Games / Performance, Play & Design (within the Arts division).       |
 
 ---
 
 ## Anticipated Challenges
 
-<!-- What could go wrong? Name at least two specific risks with reasoning.
-     Consider: noisy or inconsistent documents, missing source attribution, off-topic
-     retrieval, chunks that split key information across boundaries. -->
+1. **Cross-review boundary contamination:** If fixed-size chunking is applied to a block of concatenated reviews, two unrelated reviews about different professors may land in the same chunk, or one review may be split across two chunks. Retrieval then returns half-context or mixed-professor signal to the LLM. Mitigation: chunk at review boundaries rather than fixed size; enforce professor-name metadata filtering at retrieval time.
 
-1.
+2. **False consensus from sparse reviews:** Some professors (especially those added recently or outside popular departments) have only 2–3 reviews. Aggregating those can make one student's outlier experience read as consensus. Mitigation: store review count per professor as metadata and surface it in the grounded response so the LLM can hedge appropriately.
 
-2.
+3. **Off-topic semantic retrieval on generic phrases:** Queries using phrases like "hard exams" or "tough grader" produce embeddings that match many professors, not the one being asked about. A query about Ethan Miller may retrieve top-k chunks from unrelated professors with similar review language. Mitigation: include professor name in query (or as a ChromaDB `where` metadata filter) so retrieval is scoped before semantic ranking.
 
 ---
 
 ## Architecture
 
-<!-- Draw a diagram of your pipeline showing the five stages:
-     Document Ingestion → Chunking → Embedding + Vector Store → Retrieval → Generation
-     Label each stage with the tool or library you're using.
-     You can use ASCII art, a Mermaid diagram, or embed a sketch as an image.
-     You'll use this diagram as context when prompting AI tools to implement each stage. -->
+```mermaid
+flowchart TD
+    A["Document Ingestion (documents/*.txt, python-dotenv)"]
+    B["Chunking (per-review, ~400-600 chars + metadata)"]
+    C["Embedding (all-MiniLM-L6-v2, sentence-transformers)"]
+    D["Vector Store (ChromaDB, local persistent)"]
+    E["Retrieval (top-k=5, semantic search + metadata filter)"]
+    F["Generation (Groq LLM, grounded prompt + attribution)"]
+    A --> B --> C --> D --> E --> F
+```
 
 ---
 
