@@ -9,7 +9,7 @@
 
 ## Domain
 
-<!-- What domain did you choose? Why is this knowledge valuable and hard to find through official channels? -->
+Student experiences with specific professors and courses at UC Santa Cruz — what teaching style, workload, grading, and exam difficulty are actually like in each class, and which instructors students recommend or avoid. This is hard to find through official channels because the registrar's catalog and the Student Experience of Teaching Survey (SET) summaries describe course content and aggregate numbers, not the candid, instructor-specific advice students trade informally. The real signal lives scattered across Rate My Professors reviews, the student-built Slugtistics GPA/review site, and r/UCSC threads — sources no single official page aggregates.
 
 ---
 
@@ -20,16 +20,18 @@
 
 | # | Source | Description | URL or location |
 |---|--------|-------------|-----------------|
-| 1 | | | |
-| 2 | | | |
-| 3 | | | |
-| 4 | | | |
-| 5 | | | |
-| 6 | | | |
-| 7 | | | |
-| 8 | | | |
-| 9 | | | |
-| 10 | | | |
+| 1 | RMP — UCSC school hub | Aggregated ratings for all UCSC professors | https://www.ratemyprofessors.com/school/1078 |
+| 2 | RMP — Ethan Miller (CS) | Reviews for a high-profile CS prof with polarized opinions | https://www.ratemyprofessors.com/professor/136264 |
+| 3 | RMP — A.M. Darke (Art/Games) | Reviews covering an Art & Games dept professor | https://www.ratemyprofessors.com/professor/2463375 |
+| 4 | RMP — Ryan Coonerty (Politics) | Reviews for a Politics/Community Studies prof | https://www.ratemyprofessors.com/professor/439427 |
+| 5 | RMP — Jesse Kass (Math) | Reviews for a well-regarded Math dept professor | https://www.ratemyprofessors.com/professor/2895784 |
+| 6 | RMP — Anne Sizemore (Chem) | Reviews for an Organic Chemistry professor | https://www.ratemyprofessors.com/professor/2989548 |
+| 7 | RMP — Scott Anderson | Reviews covering extra credit and grading style | https://www.ratemyprofessors.com/professor/2319462 |
+| 8 | RMP — Edward Migliore (Math, online) | Reviews for an online Math instructor | https://www.ratemyprofessors.com/professor/218123 |
+| 9 | RMP — Steven Owen | Reviews for a UCSC professor (diverse dept coverage) | https://www.ratemyprofessors.com/professor/2346100 |
+| 10 | Slugtistics | Student-built UCSC class search with GPA data and instructor reviews | https://slugtistics.com/about |
+| 11 | UCSC IRAPS grade data | Official grade distributions by course and term | https://iraps.ucsc.edu/campus-data/student-data/grades-by-course-and-term/ |
+| 12 | r/UCSC subreddit | Community threads on professor recommendations and easy GEs | https://www.reddit.com/r/UCSC/ |
 
 ---
 
