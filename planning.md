@@ -105,7 +105,19 @@ flowchart TD
      with my specified chunk size and overlap" is a plan. -->
 
 **Milestone 3 — Ingestion and chunking:**
+- **AI tool:** Claude (claude.ai)
+- **Input:** The Chunking Strategy section of this file plus a description of the JSONL input format (fields: `text`, `professor`, `dept`, `source`, `rating`)
+- **Expected output:** A complete `ingest.py` with `load_records()`, `clean_text()`, `chunk_records()`, and `write_jsonl()` functions matching the per-review chunking strategy
+- **Verification:** Run `python3 ingest.py` and inspect `chunks.jsonl` — confirm chunk count is ~580, each chunk has a self-containment header, no HTML entities remain, no duplicates exist
 
 **Milestone 4 — Embedding and retrieval:**
+- **AI tool:** Claude (claude.ai)
+- **Input:** The Retrieval Approach section of this file, the pipeline architecture diagram, and the already-written `ingest.py` as context for the output chunk format
+- **Expected output:** `embed.py` with `embed_chunks()` (batch upsert into ChromaDB), `retrieve()` (query with optional professor filter), and a `--smoke-test` CLI path that runs all 5 eval queries
+- **Verification:** Run `python3 embed.py --smoke-test` — all 5 eval queries must return PASS (top-1 cosine distance < 0.5); inspect raw distance values directly in output
 
 **Milestone 5 — Generation and interface:**
+- **AI tool:** Claude (claude.ai)
+- **Input:** The Grounded Generation spec (system prompt rules, distance threshold, citation format) from this file plus `embed.py` as context for the `retrieve()` interface
+- **Expected output:** `generate.py` with `answer()` (full RAG pipeline: detect professor → retrieve → filter → format context → call Groq → append references) and `app.py` with a Gradio UI (textbox, answer panel, sources panel, example questions)
+- **Verification:** Run each of the 5 eval questions manually through `python3 generate.py` and confirm answers are grounded with `[n]` citations; run the out-of-scope tuition query and confirm refusal without LLM call

@@ -18,3 +18,8 @@ chroma/
 
 # macOS
 .DS_Store
+
+# pdfs
+*.pdf
+
+CLAUDE.md
